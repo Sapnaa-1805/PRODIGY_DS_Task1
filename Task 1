@@ -1,0 +1,73 @@
+#Task 1: 
+'''Create a bar chart or histogram to visualize the distribution of a categorical or continuous variable, such as the distribution of
+ages or genders in a population.'''
+
+
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+#Loading the dataset
+# The population file has 4 metadata rows at the top
+pop_df = pd.read_csv('API_SP.POP.TOTL_DS2_en_csv_v2_38144.csv', skiprows=4)
+meta_df = pd.read_csv('Metadata_Country_API_SP.POP.TOTL_DS2_en_csv_v2_38144.csv')
+
+#Merging Population Data with Country Metadata
+merged_df = pd.merge(pop_df, meta_df, on='Country Code')
+
+#Filtering out rows where 'Region' is NaN. 
+countries_only = merged_df.dropna(subset=['Region'])
+
+
+sns.set_theme(style="whitegrid")
+
+# --- VISUALIZATION 1: BAR CHART (Distribution by Region) ---
+print("--------Distribution by Region-----------\n")
+plt.figure(figsize=(12, 6))
+# Fixed the warning by assigning 'Region' to hue and setting legend=False
+sns.countplot(
+    data=countries_only, 
+    x='Region', 
+    hue='Region', 
+    palette='viridis', 
+    legend=False,
+    order=countries_only['Region'].value_counts().index
+)
+plt.title('Distribution of Countries by Region', fontsize=16, fontweight='bold')
+plt.xlabel('Region', fontsize=12)
+plt.ylabel('Number of Countries', fontsize=12)
+plt.xticks(rotation=45, ha='right')
+plt.tight_layout()
+plt.show()
+
+# --- VISUALIZATION 2: BAR CHART (Distribution by Income Group) ---
+print("\n\n--------Distribution by Income Group-----------\n")
+plt.figure(figsize=(10, 6))
+sns.countplot(
+    data=countries_only, 
+    x='IncomeGroup', 
+    hue='IncomeGroup', 
+    palette='magma', 
+    legend=False,
+    order=countries_only['IncomeGroup'].value_counts().index
+)
+plt.title('Distribution of Countries by Income Group', fontsize=16, fontweight='bold')
+plt.xlabel('Income Group', fontsize=12)
+plt.ylabel('Number of Countries', fontsize=12)
+plt.tight_layout()
+plt.show()
+
+# --- VISUALIZATION 3: HISTOGRAM (Population Distribution 2023) ---
+print("\n\n--------Population Distribution -----------\n")
+plt.figure(figsize=(10, 6))
+pop_2023 = countries_only['2023'].dropna()
+
+# Using a log scale is the "Scientist" choice here because population ranges from 10k to 1.4B.
+sns.histplot(pop_2023, bins=30, kde=True, color='#2ecc71')
+plt.xscale('log') 
+plt.title('Global Population Distribution (2023)', fontsize=16, fontweight='bold')
+plt.xlabel('Population Size (Log Scale)', fontsize=12)
+plt.ylabel('Number of Countries', fontsize=12)
+plt.grid(axis='x', linestyle='--', alpha=0.5)
+plt.tight_layout()
+plt.show()
