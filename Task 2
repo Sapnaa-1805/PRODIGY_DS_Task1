@@ -1,0 +1,68 @@
+#Task 2: Perform data cleaning and exploratory data analysis (EDA) on a dataset of your choice, such as the Titanic
+#dataset from Kaggle. Explore the relationships between variables and identify patterns and trends in the data.
+
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+#Loading the dataset
+df = pd.read_csv('Titanic-Dataset.csv')
+
+# --- DATA CLEANING ---
+
+# Checking for missing values
+print("Missing values before cleaning:\n", df.isnull().sum())
+
+# Filingl missing Age with the median 
+df['Age'] = df['Age'].fillna(df['Age'].median())
+
+# Filling missing Embarked with the mode 
+df['Embarked'] = df['Embarked'].fillna(df['Embarked'].mode()[0])
+
+# Droping 'Cabin' column as it has >70% missing data
+df.drop(columns=['Cabin'], inplace=True)
+
+# Droping redundant columns for analysis
+df.drop(columns=['PassengerId', 'Name', 'Ticket'], inplace=True)
+
+print("\nCleaning Complete. Missing values now:\n", df.isnull().sum())
+
+# --- EXPLORATORY DATA ANALYSIS (EDA) ---
+sns.set_theme(style="whitegrid")
+
+#Survival Rate by Sex
+print("Survival Rate by Sex")
+plt.figure(figsize=(7, 5))
+sns.barplot(data=df, x='Sex', y='Survived', palette='viridis', hue='Sex', legend=False)
+plt.title('Survival Rate: Male vs Female', fontsize=14)
+plt.ylabel('Survival Probability')
+plt.show()
+
+#Survival Rate by Passenger Class
+print("\n\nSurvival Rate by Passenger Class")
+plt.figure(figsize=(7, 5))
+sns.barplot(data=df, x='Pclass', y='Survived', palette='magma', hue='Pclass', legend=False)
+plt.title('Survival Rate by Passenger Class', fontsize=14)
+plt.ylabel('Survival Probability')
+plt.show()
+
+#Age Distribution of Survivors vs Non-Survivors
+print("\n\nAge Distribution of Survivors vs Non-Survivors")
+plt.figure(figsize=(10, 6))
+sns.histplot(df[df['Survived'] == 1]['Age'], kde=True, color='green', label='Survived', alpha=0.5)
+sns.histplot(df[df['Survived'] == 0]['Age'], kde=True, color='red', label='Did Not Survive', alpha=0.5)
+plt.title('Age Distribution by Survival Status', fontsize=14)
+plt.legend()
+plt.show()
+
+#Correlation Heatmap (Numerical Relationships)
+print("\n\nCorrelation Heatmap")
+plt.figure(figsize=(10, 8))
+# Convering Sex to numeric for correlation: male=0, female=1
+df_corr = df.copy()
+df_corr['Sex'] = df_corr['Sex'].map({'male': 0, 'female': 1})
+df_corr['Embarked'] = df_corr['Embarked'].map({'S': 0, 'C': 1, 'Q': 2})
+
+sns.heatmap(df_corr.corr(), annot=True, cmap='coolwarm', fmt='.2f', linewidths=0.5)
+plt.title('Variable Correlation Heatmap', fontsize=14)
+plt.show()
