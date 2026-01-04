@@ -1,0 +1,46 @@
+#Task 4: Analyze and visualize sentiment patterns in social media data to understand public opinion and attitudes towards 
+#specific topics or brands.
+
+
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+# Loading the dataset
+df = pd.read_csv('twitter_training.csv', header=None)
+df.columns = ['id', 'entity', 'sentiment', 'content']
+
+# Data Cleaning
+# Removing rows with null content
+df.dropna(subset=['content'], inplace=True)
+
+# 3. Visualization - Overall Sentiment
+print("\n\n Overall Sentiment")
+sns.set_theme(style="whitegrid")
+plt.figure(figsize=(10, 6))
+sns.countplot(data=df, x='sentiment',hue='sentiment', legend=False,  palette='viridis', order=['Positive', 'Negative', 'Neutral', 'Irrelevant'])
+plt.title('Global Sentiment Distribution across All Entities', fontsize=16)
+plt.ylabel('Number of Tweets')
+plt.show()
+
+# 4. Visualization - Top 5 Entities by Sentiment
+print("\n\n Top 5 Entities by Sentiment")
+top_5_entities = df['entity'].value_counts().head(5).index
+df_top_5 = df[df['entity'].isin(top_5_entities)]
+
+plt.figure(figsize=(12, 7))
+sns.countplot(data=df_top_5, x='entity', hue='sentiment', legend=False,  palette='magma')
+plt.title('Sentiment Patterns for Top 5 Most Mentioned Entities', fontsize=16)
+plt.xticks(rotation=45)
+plt.show()
+
+# 5. Sentiment Heatmap (Advanced Pattern Recognition)
+print("\n\n Sentiment Heatmap")
+top_10_entities = df['entity'].value_counts().head(10).index
+df_top_10 = df[df['entity'].isin(top_10_entities)]
+sentiment_pivot = pd.crosstab(df_top_10['entity'], df_top_10['sentiment'])
+
+plt.figure(figsize=(12, 8))
+sns.heatmap(sentiment_pivot, annot=True, fmt='d', cmap='YlGnBu')
+plt.title('Sentiment Intensity Heatmap (Top 10 Entities)', fontsize=16)
+plt.show()
